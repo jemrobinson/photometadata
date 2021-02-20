@@ -33,15 +33,11 @@ class ProcessorMixin:
                 )
             # Process the photo
             photo_metadata = Metadata(photo_path.resolve())
-            self.line(
-                f"<b>Processing</b> {str(photo_metadata.filepath)}",
-                verbosity=verbosity.VERBOSE,
-            )
             result = self.process_metadata(photo_metadata)
             if not result[0]:
                 nPhotos["failed"] += 1
             self.line(
-                f"{result[1]} {str(photo_metadata.filepath.name)}",
+                f"{result[1]} {str(photo_metadata.filepath.resolve())}",
                 verbosity=verbosity.VERBOSE,
             )
             nPhotos["processed"] += 1

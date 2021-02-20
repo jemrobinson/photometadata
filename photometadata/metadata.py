@@ -1,8 +1,10 @@
 import exifread
+import logging
 import pendulum
 import re
 from itertools import groupby
 
+logging.getLogger("exifread").setLevel(logging.CRITICAL) # suppress 'Possibly corrupted field' messages from exifread
 
 class Metadata:
     def __init__(self, file_path):
@@ -21,7 +23,6 @@ class Metadata:
             try:
                 return pendulum.parse(date.replace("-", "T").replace("_", "T"))
             except:
-                print(f"Failed to parse '{date}'")
                 return None
 
     def extract_date_from_filename(self):
