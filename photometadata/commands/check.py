@@ -1,4 +1,5 @@
 from cleo import Command
+from clikit.api.io import flags as verbosity
 from .processor import ProcessorMixin
 
 
@@ -11,35 +12,46 @@ class CheckCommand(ProcessorMixin, Command):
     """
 
     def handle(self):
-        self.names = set()
         self.process_path(self.argument("path"))
-        self.line(f"<error>{self.names}</error>")
 
     def process_metadata(self, metadata):
-        failed = False
+        output_tuple = (True, "<info>Validated</info>")
         if metadata.all_dates_equal():
-            self.line(
-                f"... <info>\u2713</info> All dates are equal ({metadata.canonical_date})"
-            )
+            if self.io.verbosity == verbosity.VERY_VERBOSE:
+                self.line(
+                    f"  <info>\u2714</info> All dates are equal ({metadata.canonical_date})",
+                    verbosity=verbosity.VERY_VERBOSE,
+                )
         else:
-            self.line(f"... <error>\u2717</error> Not all dates are equal!")
-            failed = True
+            if self.io.verbosity == verbosity.VERY_VERBOSE:
+                self.line(f"  <error>\u2716</error> Not all dates are equal!")
+            output_tuple = (False, "<error>Failed to validate</error>")
         if metadata.copyright:
-            self.line(
-                f"... <info>\u2713</info> Found copyright information ({metadata.copyright})"
-            )
+            if self.io.verbosity == verbosity.VERY_VERBOSE:
+                self.line(
+                    f"  <info>\u2714</info> Found copyright information ({metadata.copyright})",
+                    verbosity=verbosity.VERY_VERBOSE,
+                )
+        else:
+            output_tuple = (False, "<error>Failed to validate</error>")
         if (not metadata.name) and (not metadata.comment):
-            self.line(f"... <error>\u2717</error> No comment or document name found!")
-            failed = True
+            if self.io.verbosity == verbosity.VERY_VERBOSE:
+                self.line(
+                    f"  <error>\u2716</error> No comment or document name found!",
+                    verbosity=verbosity.VERBOSE,
+                )
+            output_tuple = (False, "<error>Failed to validate</error>")
         else:
             if metadata.name:
-                self.line(
-                    f"... <info>\u2713</info> Found document name ({metadata.name})"
-                )
+                if self.io.verbosity == verbosity.VERY_VERBOSE:
+                    self.line(
+                        f"  <info>\u2714</info> Found document name ({metadata.name})",
+                        verbosity=verbosity.VERY_VERBOSE,
+                    )
             if metadata.comment:
-                self.line(
-                    f"... <info>\u2713</info> Found comment information ({metadata.comment})"
-                )
-        if metadata.read_tag("Camera") == "Panasonic DMC-TZ6":
-            self.names.add(metadata.filepath.name)
-        return not failed
+                if self.io.verbosity == verbosity.VERY_VERBOSE:
+                    self.line(
+                        f"  <info>\u2714</info> Found comment information ({metadata.comment})",
+                        verbosity=verbosity.VERY_VERBOSE,
+                    )
+        return output_tuple
