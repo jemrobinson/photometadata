@@ -1,9 +1,8 @@
 from cleo import Command
-from pathlib import Path
-from ..metadata import Metadata
+from .processor import ProcessorMixin
 
 
-class CheckCommand(Command):
+class CheckCommand(ProcessorMixin, Command):
     """
     Checks a photo's metadata
 
@@ -12,27 +11,35 @@ class CheckCommand(Command):
     """
 
     def handle(self):
-        nPhotos, nFailures = 0, 0
-        for photo_path in Path(self.argument("path")).rglob("*.jpg"):
-            nPhotos += 1
-            self.line(f"{photo_path.name}")
-            photo_metadata = Metadata(photo_path.resolve())
-            failed = False
-            if photo_metadata.all_dates_equal():
-                self.line(f"... <info>\u2713</info> All dates are equal ({photo_metadata.canonical_date})")
-            else:
-                self.line(f"... <error>\u2717</error> Not all dates are equal!")
-                failed = True
-            if photo_metadata.copyright:
-                self.line(f"... <info>\u2713</info> Found copyright information ({list(photo_metadata.copyright.values())[0]})")
-            if (not photo_metadata.name) and (not photo_metadata.comment):
-                self.line(f"... <error>\u2717</error> No comment or document name found!")
-                failed = True
-            else:
-                if photo_metadata.name:
-                    self.line(f"... <info>\u2713</info> Found document name ({list(photo_metadata.name.values())[0]})")
-                if photo_metadata.comment:
-                    self.line(f"... <info>\u2713</info> Found comment information ({list(photo_metadata.comment.values())[0]})")
-            if failed:
-                nFailures += 1
-        self.line(f"Processed <question>{nPhotos}</question> photos, of which <question>{nFailures} ({100. * nFailures / nPhotos:.2f}%)</question> failed validation")
+        self.names = set()
+        self.process_path(self.argument("path"))
+        self.line(f"<error>{self.names}</error>")
+
+    def process_metadata(self, metadata):
+        failed = False
+        if metadata.all_dates_equal():
+            self.line(
+                f"... <info>\u2713</info> All dates are equal ({metadata.canonical_date})"
+            )
+        else:
+            self.line(f"... <error>\u2717</error> Not all dates are equal!")
+            failed = True
+        if metadata.copyright:
+            self.line(
+                f"... <info>\u2713</info> Found copyright information ({metadata.copyright})"
+            )
+        if (not metadata.name) and (not metadata.comment):
+            self.line(f"... <error>\u2717</error> No comment or document name found!")
+            failed = True
+        else:
+            if metadata.name:
+                self.line(
+                    f"... <info>\u2713</info> Found document name ({metadata.name})"
+                )
+            if metadata.comment:
+                self.line(
+                    f"... <info>\u2713</info> Found comment information ({metadata.comment})"
+                )
+        if metadata.read_tag("Camera") == "Panasonic DMC-TZ6":
+            self.names.add(metadata.filepath.name)
+        return not failed

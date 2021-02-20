@@ -6,11 +6,11 @@ authors = ["James Robinson <james.em.robinson@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-Pillow = "^8.1.0"
-piexif = "^1.1.3"
-pendulum = "^2.1.2"
-ExifRead = "^2.3.2"
 cleo = "^0.8.1"
+emoji = "^1.2.0"
+ExifRead = "^2.3.2"
+pendulum = "^2.1.2"
+PyYAML = "^5.4.1"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
