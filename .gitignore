@@ -133,3 +133,6 @@ poetry.lock
 
 # Settings files
 *.yaml
+
+# VScode
+.vscode

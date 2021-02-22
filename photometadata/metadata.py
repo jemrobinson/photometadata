@@ -4,13 +4,21 @@ import pendulum
 import re
 from itertools import groupby
 
-logging.getLogger("exifread").setLevel(logging.CRITICAL) # suppress 'Possibly corrupted field' messages from exifread
+logging.getLogger("exifread").setLevel(
+    logging.CRITICAL
+)  # suppress 'Possibly corrupted field' messages from exifread
+
 
 class Metadata:
     def __init__(self, file_path):
         self.path = file_path
         with open(str(self.path), "rb") as photo:
             self.tags = exifread.process_file(photo)
+        self.bad_field_types = [
+            idx
+            for idx, field in enumerate(exifread.tags.FIELD_TYPES)
+            if field[2] in ("Proprietary", "Undefined")
+        ]
 
     def __repr__(self):
         return f"{self.path}"
@@ -61,22 +69,21 @@ class Metadata:
             )
             return " ".join([group[0] for group in groupby(raw_string.split(" "))])
         if name in self.tags:
+            if self.tags[name].field_type in self.bad_field_types:
+                return None
             return self.tags[name].printable.strip()
         return None
 
     @property
     def copyright(self):
-        # return {"Exif.Image.Copyright": self.read_tag("Image Copyright")}
         return self.read_tag("Image Copyright")
 
     @property
     def name(self):
-        # return {"Exif.Image.DocumentName": self.read_tag("Image DocumentName")}
         return self.read_tag("Image DocumentName")
 
     @property
     def comment(self):
-        # return {"Exif.Photo.UserComment": self.read_tag("EXIF UserComment")}
         return self.read_tag("EXIF UserComment")
 
     @property
