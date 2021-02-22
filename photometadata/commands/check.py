@@ -22,7 +22,10 @@ class CheckCommand(ProcessorMixin, Command):
                 verbosity=verbosity.VERY_VERBOSE,
             )
         else:
-            self.line(f"  <error>\u2716</error> Not all dates are equal!", verbosity=verbosity.VERY_VERBOSE)
+            self.line(
+                f"  <error>\u2716</error> Not all dates are equal!",
+                verbosity=verbosity.VERY_VERBOSE,
+            )
             output_tuple = (False, "<error>Failed to validate</error>")
         if metadata.copyright:
             self.line(
