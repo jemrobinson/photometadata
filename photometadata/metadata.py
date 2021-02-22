@@ -4,10 +4,8 @@ import pendulum
 import re
 from itertools import groupby
 
-logging.getLogger("exifread").setLevel(
-    logging.CRITICAL
-)  # suppress 'Possibly corrupted field' messages from exifread
-
+# Suppress 'Possibly corrupted field' messages from exifread
+logging.getLogger("exifread").setLevel(logging.CRITICAL)
 
 class Metadata:
     def __init__(self, file_path):
