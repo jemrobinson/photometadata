@@ -1,4 +1,5 @@
 import exifread
+from iptcinfo3 import IPTCInfo
 import logging
 import pendulum
 import re
@@ -7,11 +8,20 @@ from itertools import groupby
 # Suppress 'Possibly corrupted field' messages from exifread
 logging.getLogger("exifread").setLevel(logging.CRITICAL)
 
+# Suppress 'problems with charset recognition' messages from iptcinfo3
+logging.getLogger("iptcinfo").setLevel(logging.CRITICAL)
+
+
 class Metadata:
     def __init__(self, file_path):
         self.path = file_path
         with open(str(self.path), "rb") as photo:
             self.tags = exifread.process_file(photo)
+            self.keywords = (
+                [kwd.decode() for kwd in iptc["keywords"]]
+                if (iptc := IPTCInfo(photo))
+                else []
+            )
         self.bad_field_types = [
             idx
             for idx, field in enumerate(exifread.tags.FIELD_TYPES)

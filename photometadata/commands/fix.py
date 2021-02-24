@@ -1,5 +1,4 @@
 import re
-import subprocess
 import yaml
 from cleo import Command
 from clikit.api.io import flags as verbosity
@@ -78,17 +77,7 @@ class FixCommand(ProcessorMixin, Command):
             for tag_name, tag_value in tags.items()
         ]
         exiv_cmds += [f'exiv2 -q -d t "{filename}"']
-        for exiv_cmd in exiv_cmds:
-            self.line(
-                f"  <info>\u2728</info> running <b>{exiv_cmd}</b>",
-                verbosity=verbosity.VERY_VERBOSE,
-            )
-            try:
-                subprocess.call(exiv_cmd, shell=True)
-            except (TypeError, ValueError):
-                self.line(f"<error>{exiv_cmd} failed!</error>")
-                return (False, "<error>Failed to update</error>")
-        return (True, "<info>Updated</info>")
+        return self.run_exiv_cmds(exiv_cmds)
 
     def choose_date(self, metadata):
         if self.option("filename") and metadata.dates["Filename"]:

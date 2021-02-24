@@ -1,9 +1,9 @@
+import subprocess
 from collections import Counter
 from cleo import Command
 from clikit.api.io import flags as verbosity
 from pathlib import Path
 from ..metadata import Metadata
-import time
 
 
 class ProcessorMixin:
@@ -54,3 +54,16 @@ class ProcessorMixin:
         raise NotImplementedError(
             f"'process_metadata' must be implemented by {type(self).__name__}"
         )
+
+    def run_exiv_cmds(self, exiv_cmds):
+        for exiv_cmd in exiv_cmds:
+            self.line(
+                f"  <info>\u2728</info> running <b>{exiv_cmd}</b>",
+                verbosity=verbosity.VERY_VERBOSE,
+            )
+            try:
+                subprocess.call(exiv_cmd, shell=True)
+            except (TypeError, ValueError):
+                self.line(f"<error>{exiv_cmd} failed!</error>")
+                return (False, "<error>Failed to update</error>")
+        return (True, "<info>Updated</info>")
