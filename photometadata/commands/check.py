@@ -1,3 +1,4 @@
+"""Command for checking photo metadata"""
 from cleo import Command
 from clikit.api.io import flags as verbosity
 from .processor import ProcessorMixin
@@ -23,7 +24,7 @@ class CheckCommand(ProcessorMixin, Command):
             )
         else:
             self.line(
-                f"  <error>\u2716</error> Not all dates are equal!",
+                "  <error>\u2716</error> Not all dates are equal!",
                 verbosity=verbosity.VERY_VERBOSE,
             )
             output_tuple = (False, "<error>Failed to validate</error>")
@@ -36,7 +37,7 @@ class CheckCommand(ProcessorMixin, Command):
             output_tuple = (False, "<error>Failed to validate</error>")
         if (not metadata.name) and (not metadata.comment):
             self.line(
-                f"  <error>\u2716</error> No comment or document name found!",
+                "  <error>\u2716</error> No comment or document name found!",
                 verbosity=verbosity.VERY_VERBOSE,
             )
             output_tuple = (False, "<error>Failed to validate</error>")

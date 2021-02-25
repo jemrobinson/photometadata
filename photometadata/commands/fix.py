@@ -1,6 +1,5 @@
+"""Command for fixing photo metadata"""
 import re
-import subprocess
-import yaml
 from cleo import Command
 from clikit.api.io import flags as verbosity
 from .processor import ProcessorMixin
@@ -18,19 +17,13 @@ class FixCommand(ProcessorMixin, Command):
     """
 
     def __init__(self):
+        # Objects that will be initialised on first use
         self.settings = None
         super().__init__()
 
     def handle(self):
-        if self.option("settings"):
-            with open(self.option("settings"), "r") as f_yaml:
-                try:
-                    self.settings = yaml.safe_load(f_yaml)
-                except:
-                    self.line(
-                        f"<error>Could not load {self.option('settings')}!</error>"
-                    )
-                    raise
+        if not self.settings and self.option("settings"):
+            self.settings = self.load_settings(self.option("settings"))
         self.process_path(self.argument("path"))
 
     def process_metadata(self, metadata):
@@ -72,32 +65,26 @@ class FixCommand(ProcessorMixin, Command):
         return (True, "<info>Validated</info>")
 
     def update_metadata(self, tags, filename):
+        """Update file metadata using exiv2"""
         # Update with exiv2
         exiv_cmds = [
             f'exiv2 -q -M "set {tag_name} {tag_value}" "{filename}"'
             for tag_name, tag_value in tags.items()
         ]
         exiv_cmds += [f'exiv2 -q -d t "{filename}"']
-        for exiv_cmd in exiv_cmds:
-            self.line(
-                f"  <info>\u2728</info> running <b>{exiv_cmd}</b>",
-                verbosity=verbosity.VERY_VERBOSE,
-            )
-            try:
-                subprocess.call(exiv_cmd, shell=True)
-            except (TypeError, ValueError):
-                self.line(f"<error>{exiv_cmd} failed!</error>")
-                return (False, "<error>Failed to update</error>")
-        return (True, "<info>Updated</info>")
+        return self.run_exiv_cmds(exiv_cmds)
 
     def choose_date(self, metadata):
+        """Choose the most appropriate date using user input"""
         if self.option("filename") and metadata.dates["Filename"]:
             self.line(
                 f"  <info>\u2714</info> auto-accepting filename match for date ({metadata.dates['Filename']})",
                 verbosity=verbosity.VERY_VERBOSE,
             )
             return metadata.dates["Filename"]
-        available_dates = sorted(list(set([d for d in metadata.dates.values() if d])))
+        available_dates = sorted(
+            list({date for date in metadata.dates.values() if date})
+        )
         self.line(
             f"Found <info>{len(available_dates)}</info> different dates in {metadata.filepath.resolve()}"
         )
@@ -112,13 +99,14 @@ class FixCommand(ProcessorMixin, Command):
         return Metadata.parse_date(user_input)
 
     def choose_copyright(self, metadata):
+        """Choose the most appropriate copyright using user input"""
         if "copyright" in self.settings:
             for ruleset in self.settings["copyright"]:
                 for rule in ruleset["whenever"]:
                     tag, value = list(rule.items())[0]
                     if tag == "filename-regex":
                         regex = re.compile(value)
-                        if (m := regex.match(metadata.filepath.name)) :
+                        if regex.match(metadata.filepath.name):
                             return ruleset["name"]
                     elif metadata.read_tag(tag).upper() == value.upper():
                         return ruleset["name"]

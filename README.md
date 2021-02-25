@@ -22,6 +22,30 @@ GLOBAL OPTIONS
   -n (--no-interaction)  Do not ask any interactive question
 ```
 
+## Classify
+Classify photos according to their contents using Azure Computer Vision.
+Note that this requires a **Microsoft Azure** subscription.
+
+```
+USAGE
+  python application.py classify <path>
+
+ARGUMENTS
+  <path>                 Location to look for photos under
+
+OPTIONS
+  -s (--settings)        If set, load settings from the specified YAML file (default: "settings.yaml")
+
+GLOBAL OPTIONS
+  -h (--help)            Display this help message
+  -q (--quiet)           Do not output any message
+  -v (--verbose)         Increase the verbosity of messages: "-v" for normal output, "-vv" for more verbose output and "-vvv" for debug
+  -V (--version)         Display this application version
+  --ansi                 Force ANSI output
+  --no-ansi              Disable ANSI output
+  -n (--no-interaction)  Do not ask any interactive question
+```
+
 ## Fix
 Fix inconsistent EXIF data.
 
@@ -47,6 +71,17 @@ GLOBAL OPTIONS
 ```
 
 ## Settings
+
+### Azure
+The secrets needed to connect to Azure computer vision should be stored in the settings file
+
+```yaml
+azure:
+  endpoint: https://cv-98c13140-692e.cognitiveservices.azure.com/  # name of the endpoint to use
+  subscription_key: 6c56389abe524a8aa6c8b1c74f7b704d               # key for the endpoint
+```
+
+### Copyright
 The copyright notice can be extracted using a set of rules encoded in YAML.
 For each `name`d individual, if any of their rules are matched, the copyright will be assigned to them
 
