@@ -1,13 +1,14 @@
+"""Command for adding tags to a photo"""
 import io
-from cleo import Command
-from clikit.api.io import flags as verbosity
-from .processor import ProcessorMixin
-import PIL.Image as Image
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import (
     ComputerVisionErrorException,
 )
+from cleo import Command
+from clikit.api.io import flags as verbosity
 from msrest.authentication import CognitiveServicesCredentials
+import PIL.Image as Image
+from .processor import ProcessorMixin
 
 
 class ClassifyCommand(ProcessorMixin, Command):
@@ -51,7 +52,7 @@ class ClassifyCommand(ProcessorMixin, Command):
             img_bytes = open(metadata.filepath, "rb")
             try:
                 cv_results = self.cv_client.tag_image_in_stream(img_bytes)
-            except ComputerVisionErrorException as e:
+            except ComputerVisionErrorException:
                 img_bytes = io.BytesIO()
                 Image.open(metadata.filepath).resize(self.resized_image_shape).save(
                     img_bytes, format="JPEG"

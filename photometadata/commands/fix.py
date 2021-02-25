@@ -1,3 +1,4 @@
+"""Command for fixing photo metadata"""
 import re
 from cleo import Command
 from clikit.api.io import flags as verbosity
@@ -22,7 +23,7 @@ class FixCommand(ProcessorMixin, Command):
 
     def handle(self):
         if not self.settings and self.option("settings"):
-            self.settings = self.load_settings(self, self.option("settings"))
+            self.settings = self.load_settings(self.option("settings"))
         self.process_path(self.argument("path"))
 
     def process_metadata(self, metadata):
@@ -64,6 +65,7 @@ class FixCommand(ProcessorMixin, Command):
         return (True, "<info>Validated</info>")
 
     def update_metadata(self, tags, filename):
+        """Update file metadata using exiv2"""
         # Update with exiv2
         exiv_cmds = [
             f'exiv2 -q -M "set {tag_name} {tag_value}" "{filename}"'
@@ -73,13 +75,16 @@ class FixCommand(ProcessorMixin, Command):
         return self.run_exiv_cmds(exiv_cmds)
 
     def choose_date(self, metadata):
+        """Choose the most appropriate date using user input"""
         if self.option("filename") and metadata.dates["Filename"]:
             self.line(
                 f"  <info>\u2714</info> auto-accepting filename match for date ({metadata.dates['Filename']})",
                 verbosity=verbosity.VERY_VERBOSE,
             )
             return metadata.dates["Filename"]
-        available_dates = sorted(list(set([d for d in metadata.dates.values() if d])))
+        available_dates = sorted(
+            list({date for date in metadata.dates.values() if date})
+        )
         self.line(
             f"Found <info>{len(available_dates)}</info> different dates in {metadata.filepath.resolve()}"
         )
@@ -94,13 +99,14 @@ class FixCommand(ProcessorMixin, Command):
         return Metadata.parse_date(user_input)
 
     def choose_copyright(self, metadata):
+        """Choose the most appropriate copyright using user input"""
         if "copyright" in self.settings:
             for ruleset in self.settings["copyright"]:
                 for rule in ruleset["whenever"]:
                     tag, value = list(rule.items())[0]
                     if tag == "filename-regex":
                         regex = re.compile(value)
-                        if (m := regex.match(metadata.filepath.name)) :
+                        if regex.match(metadata.filepath.name):
                             return ruleset["name"]
                     elif metadata.read_tag(tag).upper() == value.upper():
                         return ruleset["name"]
