@@ -1,10 +1,13 @@
+import io
 from cleo import Command
 from clikit.api.io import flags as verbosity
 from .processor import ProcessorMixin
-import tensorflow as tf
-import tensorflow_hub as hub
 import PIL.Image as Image
-import numpy as np
+from azure.cognitiveservices.vision.computervision import ComputerVisionClient
+from azure.cognitiveservices.vision.computervision.models import (
+    ComputerVisionErrorException,
+)
+from msrest.authentication import CognitiveServicesCredentials
 
 
 class ClassifyCommand(ProcessorMixin, Command):
@@ -13,29 +16,29 @@ class ClassifyCommand(ProcessorMixin, Command):
 
     classify
         {path : Location to look for photos under}
+        {--s|settings=settings.yaml : If set, load settings from the specified YAML file}
     """
 
     def __init__(self):
-        # Load ImageNet labels
-        labels_path = tf.keras.utils.get_file(
-            "ImageNetLabels.txt",
-            "https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt",
-        )
-        with open(labels_path, "r") as f_labels:
-            self.labels = np.array(f_labels.read().splitlines())
+        # Objects that will be initialised on first use
+        self.cv_client = None
+        self.settings = None
 
-        # Initialise classifier
-        self.image_shape = (224, 224)
-        classifier_model = (
-            "https://tfhub.dev/google/imagenet/inception_v3/classification/4"
-        )
-        self.classifier = tf.keras.Sequential(
-            [hub.KerasLayer(classifier_model, input_shape=self.image_shape + (3,))]
-        )
-        self.logit_cutoff = 8
+        # Constants
+        self.resized_image_shape = (512, 512)
+        self.confidence_cutoff = 0.8
         super().__init__()
 
     def handle(self):
+        if not self.settings and self.option("settings"):
+            self.settings = self.load_settings(self.option("settings"))
+        if not self.cv_client:
+            self.cv_client = ComputerVisionClient(
+                self.settings["azure"]["endpoint"],
+                CognitiveServicesCredentials(
+                    self.settings["azure"]["subscription_key"]
+                ),
+            )
         self.process_path(self.argument("path"))
 
     def process_metadata(self, metadata):
@@ -44,30 +47,37 @@ class ClassifyCommand(ProcessorMixin, Command):
                 "  <info>\u2714</info> attempting to add keywords",
                 verbosity=verbosity.VERY_VERBOSE,
             )
-            # Load the file into a numpy array
-            img_resized = Image.open(metadata.filepath).resize(self.image_shape)
-            img_array = np.array(img_resized) / 255.0
+            # Get tags from Azure computer vision
+            img_bytes = open(metadata.filepath, "rb")
+            try:
+                cv_results = self.cv_client.tag_image_in_stream(img_bytes)
+            except ComputerVisionErrorException as e:
+                img_bytes = io.BytesIO()
+                Image.open(metadata.filepath).resize(self.resized_image_shape).save(
+                    img_bytes, format="JPEG"
+                )
+                img_bytes.seek(0)
+                cv_results = self.cv_client.tag_image_in_stream(img_bytes)
+            # Take all tags with a high enough confidence score
+            tags_all = sorted(
+                cv_results.tags, key=lambda tag: tag.confidence, reverse=True
+            )
+            tags_selected = [tags_all[0].name] + [
+                tag.name
+                for tag in tags_all[1:]
+                if tag.confidence > self.confidence_cutoff
+            ]
 
-            # Predict classes using Inception v3
-            result = self.classifier.predict(img_array[np.newaxis, ...])
-            predicted_classes = [
-                idx
-                for idx, class_ in enumerate(result[0])
-                if class_ > self.logit_cutoff
-            ]
-            predicted_class_names = [
-                self.labels[class_] for class_ in predicted_classes
-            ]
+        if not metadata.keywords:
+            # Update the metadata
             self.line(
-                f"Found <b>{len(predicted_class_names)}</b> classes: {predicted_class_names}",
+                f"Found <b>{len(tags_selected)}</b> classes: {tags_selected}",
                 verbosity=verbosity.VERY_VERBOSE,
             )
-
-            # Update the metadata
             return self.run_exiv_cmds(
                 [
-                    f'exiv2 -q -M "add Iptc.Application2.Keywords String {predicted_class_name}" "{metadata.filepath.resolve()}"'
-                    for predicted_class_name in predicted_class_names
+                    f'exiv2 -q -M "add Iptc.Application2.Keywords String {tag_name}" "{metadata.filepath.resolve()}"'
+                    for tag_name in tags_selected
                 ]
             )
         return (True, "<info>Skipped</info>")

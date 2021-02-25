@@ -1,5 +1,4 @@
 import re
-import yaml
 from cleo import Command
 from clikit.api.io import flags as verbosity
 from .processor import ProcessorMixin
@@ -17,19 +16,13 @@ class FixCommand(ProcessorMixin, Command):
     """
 
     def __init__(self):
+        # Objects that will be initialised on first use
         self.settings = None
         super().__init__()
 
     def handle(self):
-        if self.option("settings"):
-            with open(self.option("settings"), "r") as f_yaml:
-                try:
-                    self.settings = yaml.safe_load(f_yaml)
-                except:
-                    self.line(
-                        f"<error>Could not load {self.option('settings')}!</error>"
-                    )
-                    raise
+        if not self.settings and self.option("settings"):
+            self.settings = self.load_settings(self, self.option("settings"))
         self.process_path(self.argument("path"))
 
     def process_metadata(self, metadata):

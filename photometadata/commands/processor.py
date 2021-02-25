@@ -1,4 +1,5 @@
 import subprocess
+import yaml
 from collections import Counter
 from cleo import Command
 from clikit.api.io import flags as verbosity
@@ -12,6 +13,14 @@ class ProcessorMixin:
     """
 
     extensions = ["jpg", "JPG", "jpeg", "JPEG"]
+
+    def load_settings(self, path):
+        try:
+            with open(path, "r") as f_yaml:
+                return yaml.safe_load(f_yaml)
+        except:
+            self.line(f"<error>Could not load {self.option('settings')}!</error>")
+            raise
 
     def process_path(self, path):
         base_path = Path(path)
