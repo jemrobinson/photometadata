@@ -4,6 +4,7 @@ from cleo import Command
 from clikit.api.io import flags as verbosity
 from .processor import ProcessorMixin
 from ..metadata import Metadata
+from typing import Tuple
 
 
 class FixCommand(ProcessorMixin, Command):
@@ -26,7 +27,7 @@ class FixCommand(ProcessorMixin, Command):
             self.settings = self.load_settings(self.option("settings"))
         self.process_path(self.argument("path"))
 
-    def process_metadata(self, metadata):
+    def process_metadata(self, metadata) -> Tuple[bool, str]:
         tags2set = {}
 
         if not metadata.all_dates_equal():

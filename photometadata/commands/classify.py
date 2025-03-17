@@ -9,6 +9,7 @@ from clikit.api.io import flags as verbosity
 from msrest.authentication import CognitiveServicesCredentials
 import PIL.Image as Image
 from .processor import ProcessorMixin
+from typing import Tuple
 
 
 class ClassifyCommand(ProcessorMixin, Command):
@@ -42,7 +43,7 @@ class ClassifyCommand(ProcessorMixin, Command):
             )
         self.process_path(self.argument("path"))
 
-    def process_metadata(self, metadata):
+    def process_metadata(self, metadata) -> Tuple[bool, str]:
         if not metadata.keywords:
             self.line(
                 "  <info>\u2714</info> attempting to add keywords",

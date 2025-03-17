@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 from clikit.api.io import flags as verbosity
 import yaml
+from typing import Tuple
 from ..metadata import Metadata
 
 
@@ -61,13 +62,13 @@ class ProcessorMixin:
             f"Processed <b>{n_photos['processed']}</b> photos of which <info>{n_photos['failed']}</info> (<info>{percentage:.2f}%</info>) failed validation"
         )
 
-    def process_metadata(self, metadata):
+    def process_metadata(self, metadata) -> Tuple[bool, str]:
         """Process some metadata"""
         raise NotImplementedError(
             f"'process_metadata' must be implemented by {type(self).__name__}"
         )
 
-    def run_exiv_cmds(self, exiv_cmds):
+    def run_exiv_cmds(self, exiv_cmds) -> Tuple[bool, str]:
         """Run one or more external exiv2 commands"""
         for exiv_cmd in exiv_cmds:
             self.line(
