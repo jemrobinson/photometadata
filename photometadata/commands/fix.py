@@ -1,10 +1,12 @@
 """Command for fixing photo metadata"""
 import re
+
 from cleo import Command
 from clikit.api.io import flags as verbosity
-from .processor import ProcessorMixin
-from ..metadata import Metadata
-from typing import Tuple
+
+from photometadata import Metadata
+
+from photometadata.mixins import ProcessorMixin
 
 
 class FixCommand(ProcessorMixin, Command):
@@ -22,12 +24,12 @@ class FixCommand(ProcessorMixin, Command):
         self.settings = None
         super().__init__()
 
-    def handle(self):
+    def handle(self) -> None:
         if not self.settings and self.option("settings"):
             self.settings = self.load_settings(self.option("settings"))
         self.process_path(self.argument("path"))
 
-    def process_metadata(self, metadata) -> Tuple[bool, str]:
+    def process_metadata(self, metadata: Metadata) -> tuple[bool, str]:
         tags2set = {}
 
         if not metadata.all_dates_equal():
@@ -65,7 +67,7 @@ class FixCommand(ProcessorMixin, Command):
             return self.update_metadata(tags2set, metadata.filepath.resolve())
         return (True, "<info>Validated</info>")
 
-    def update_metadata(self, tags, filename):
+    def update_metadata(self, tags: dict[str, str], filename):
         """Update file metadata using exiv2"""
         # Update with exiv2
         exiv_cmds = [
@@ -75,7 +77,7 @@ class FixCommand(ProcessorMixin, Command):
         exiv_cmds += [f'exiv2 -q -d t "{filename}"']
         return self.run_exiv_cmds(exiv_cmds)
 
-    def choose_date(self, metadata):
+    def choose_date(self, metadata: Metadata):
         """Choose the most appropriate date using user input"""
         if self.option("filename") and metadata.dates["Filename"]:
             self.line(

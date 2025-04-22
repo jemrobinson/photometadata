@@ -1,7 +1,9 @@
 """Command for checking photo metadata"""
 from cleo import Command
 from clikit.api.io import flags as verbosity
-from .processor import ProcessorMixin
+
+from photometadata import Metadata
+from photometadata.mixins import ProcessorMixin
 
 
 class CheckCommand(ProcessorMixin, Command):
@@ -12,10 +14,10 @@ class CheckCommand(ProcessorMixin, Command):
         {path : Location to look for photos under}
     """
 
-    def handle(self):
+    def handle(self) -> None:
         self.process_path(self.argument("path"))
 
-    def process_metadata(self, metadata):
+    def process_metadata(self, metadata: Metadata):
         output_tuple = (True, "<info>Validated</info>")
         if metadata.all_dates_equal():
             self.line(

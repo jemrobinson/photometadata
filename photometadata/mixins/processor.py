@@ -1,11 +1,12 @@
 """Mixin class for file processing commands"""
+import subprocess
 from collections import Counter
 from pathlib import Path
-import subprocess
-from clikit.api.io import flags as verbosity
+
 import yaml
-from typing import Tuple
-from ..metadata import Metadata
+from clikit.api.io import flags as verbosity
+
+from photometadata.metadata import Metadata
 
 
 class ProcessorMixin:
@@ -15,16 +16,16 @@ class ProcessorMixin:
 
     extensions = ["jpg", "JPG", "jpeg", "JPEG"]
 
-    def load_settings(self, path):
+    def load_settings(self, path: Path) -> str:
         """Load a YAML settings file into a dict"""
         try:
-            with open(path, "r") as f_yaml:
+            with open(path, "r", encoding="utf-8") as f_yaml:
                 return yaml.safe_load(f_yaml)
         except:
             self.line(f"<error>Could not load {self.option('settings')}!</error>")
             raise
 
-    def process_path(self, path):
+    def process_path(self, path: str | Path) -> None:
         """Process all photos under the given path"""
         base_path = Path(path)
         photo_paths = sum(
@@ -62,13 +63,13 @@ class ProcessorMixin:
             f"Processed <b>{n_photos['processed']}</b> photos of which <info>{n_photos['failed']}</info> (<info>{percentage:.2f}%</info>) failed validation"
         )
 
-    def process_metadata(self, metadata) -> Tuple[bool, str]:
+    def process_metadata(self, metadata: Metadata) -> tuple[bool, str]:
         """Process some metadata"""
         raise NotImplementedError(
             f"'process_metadata' must be implemented by {type(self).__name__}"
         )
 
-    def run_exiv_cmds(self, exiv_cmds) -> Tuple[bool, str]:
+    def run_exiv_cmds(self, exiv_cmds) -> tuple[bool, str]:
         """Run one or more external exiv2 commands"""
         for exiv_cmd in exiv_cmds:
             self.line(

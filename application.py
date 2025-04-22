@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-from photometadata.commands import CheckCommand, ClassifyCommand, DuplicatesCommand, FixCommand
 from cleo import Application
+
+from photometadata.commands import (CheckCommand, ClassifyCommand,
+                                    DuplicatesCommand, FixCommand)
 
 application = Application()
 application.add(CheckCommand())

@@ -136,3 +136,6 @@ poetry.lock
 
 # VScode
 .vscode
+
+# System files
+.DS_Store

@@ -1,10 +1,11 @@
 """Class for holding photo metadata"""
-from itertools import groupby
 import logging
 import re
+from itertools import groupby
+
 import exifread
-from iptcinfo3 import IPTCInfo
 import pendulum
+from iptcinfo3 import IPTCInfo
 
 # Suppress 'Possibly corrupted field' messages from exifread
 logging.getLogger("exifread").setLevel(logging.CRITICAL)
