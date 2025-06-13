@@ -47,12 +47,12 @@ class ProcessorMixin:
             # Process the photo
             photo_metadata = Metadata(photo_path.resolve())
             result = self.process_metadata(photo_metadata)
+            msg = f"{result[1]} {str(photo_metadata.filepath.resolve())}"
             if not result[0]:
                 n_photos["failed"] += 1
-            self.line(
-                f"{result[1]} {str(photo_metadata.filepath.resolve())}",
-                verbosity=verbosity.VERBOSE,
-            )
+                self.line(msg, verbosity=verbosity.NORMAL)
+            else:
+                self.line(msg, verbosity=verbosity.VERBOSE)
             n_photos["processed"] += 1
         percentage = (
             100.0 * n_photos["failed"] / n_photos["processed"]

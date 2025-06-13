@@ -19,6 +19,14 @@ class CheckCommand(ProcessorMixin, Command):
 
     def process_metadata(self, metadata: Metadata):
         output_tuple = (True, "<info>Validated</info>")
+        # Check for broken image
+        if metadata.fingerprint == "NotAvailable":
+            self.line(
+                "  <error>\u2716</error> Image data is broken!",
+                verbosity=verbosity.NORMAL,
+            )
+            output_tuple = (False, "<error>Failed to validate</error>")
+        # Check for equal dates
         if metadata.all_dates_equal():
             self.line(
                 f"  <info>\u2714</info> All dates are equal ({metadata.canonical_date})",
@@ -27,20 +35,26 @@ class CheckCommand(ProcessorMixin, Command):
         else:
             self.line(
                 "  <error>\u2716</error> Not all dates are equal!",
-                verbosity=verbosity.VERY_VERBOSE,
+                verbosity=verbosity.NORMAL,
             )
             output_tuple = (False, "<error>Failed to validate</error>")
+        # Check for copyright
         if metadata.copyright:
             self.line(
                 f"  <info>\u2714</info> Found copyright information ({metadata.copyright})",
                 verbosity=verbosity.VERY_VERBOSE,
             )
         else:
+            self.line(
+                "  <error>\u2716</error> Copyright is missing!",
+                verbosity=verbosity.NORMAL,
+            )
             output_tuple = (False, "<error>Failed to validate</error>")
+        # Check for name or comment
         if (not metadata.name) and (not metadata.comment):
             self.line(
                 "  <error>\u2716</error> No comment or document name found!",
-                verbosity=verbosity.VERY_VERBOSE,
+                verbosity=verbosity.NORMAL,
             )
             output_tuple = (False, "<error>Failed to validate</error>")
         else:
