@@ -94,11 +94,16 @@ class FixCommand(ProcessorMixin, Command):
         date_map = {str(idx): date for idx, date in enumerate(available_dates, start=1)}
         for idx, date in date_map.items():
             self.line(f"  <b>{idx})</b> {date}")
-        user_input = self.ask(
-            "Please pick one of these options (1, 2, 3 etc.) or enter a date in 'YYYY:MM:DD HH:MM:SS' format:"
-        )
-        if user_input in date_map:
-            return date_map[user_input]
+        # Automatically take the earliest timestamp if they're all within 5 seconds
+        if (available_dates[-1] - available_dates[0]).as_duration().seconds < 5:
+            self.line(f"Automatically selecting <b>{date_map["1"]}</b> among close-together timestamps.")
+            return date_map["1"]
+        else:
+            user_input = self.ask(
+                "Please pick one of these options (1, 2, 3 etc.) or enter a date in 'YYYY:MM:DD HH:MM:SS' format:"
+            )
+            if user_input in date_map:
+                return date_map[user_input]
         return Metadata.parse_date(user_input)
 
     def choose_copyright(self, metadata):
