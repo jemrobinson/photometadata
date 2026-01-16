@@ -49,6 +49,7 @@ class FixCommand(ProcessorMixin, Command):
                 f"  <info>\u2714</info> updating all dates to ({date})",
                 verbosity=verbosity.VERY_VERBOSE,
             )
+            self.set_filename_date(metadata, date)
         if not metadata.copyright:
             copyright_ = self.choose_copyright(metadata)
             tags2set.update({"Exif.Image.Copyright": copyright_})
@@ -121,3 +122,15 @@ class FixCommand(ProcessorMixin, Command):
                         return ruleset["name"]
         self.line(f"No copyright rule found for {metadata.filepath.resolve()}")
         return self.ask("Please enter the name of the copyright holder:")
+
+    def set_filename_date(self, metadata: Metadata, date: pendulum.DateTime) -> None:
+        filename_date = metadata.extract_date_from_filename()
+        if (not filename_date) or filename_date == date:
+            return
+        filename = metadata.filename.replace(
+            filename_date.strftime(r"%Y%m%d_%H%M%S"),
+            date.strftime(r"%Y%m%d_%H%M%S")
+        )
+        filepath = metadata.filepath.parent / filename
+        metadata.path = metadata.filepath.rename(filepath)
+
