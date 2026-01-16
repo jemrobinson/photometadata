@@ -1,14 +1,15 @@
 """Command for adding tags to a photo"""
 import io
+
+from PIL import Image
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from azure.cognitiveservices.vision.computervision.models import (
-    ComputerVisionErrorException,
-)
+from azure.cognitiveservices.vision.computervision.models import ComputerVisionErrorException
 from cleo import Command
 from clikit.api.io import flags as verbosity
 from msrest.authentication import CognitiveServicesCredentials
-import PIL.Image as Image
-from .processor import ProcessorMixin
+
+from photometadata import Metadata
+from photometadata.mixins import ProcessorMixin
 
 
 class ClassifyCommand(ProcessorMixin, Command):
@@ -30,7 +31,7 @@ class ClassifyCommand(ProcessorMixin, Command):
         self.confidence_cutoff = 0.8
         super().__init__()
 
-    def handle(self):
+    def handle(self) -> None:
         if not self.settings and self.option("settings"):
             self.settings = self.load_settings(self.option("settings"))
         if not self.cv_client:
@@ -42,7 +43,7 @@ class ClassifyCommand(ProcessorMixin, Command):
             )
         self.process_path(self.argument("path"))
 
-    def process_metadata(self, metadata):
+    def process_metadata(self, metadata: Metadata) -> tuple[bool, str]:
         if not metadata.keywords:
             self.line(
                 "  <info>\u2714</info> attempting to add keywords",

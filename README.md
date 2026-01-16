@@ -46,6 +46,26 @@ GLOBAL OPTIONS
   -n (--no-interaction)  Do not ask any interactive question
 ```
 
+## Duplicates
+Check for duplicate files
+
+```
+USAGE
+  python application.py duplicates <target>
+
+ARGUMENTS
+  <target>               Location that photos are stored under
+
+GLOBAL OPTIONS
+  -h (--help)            Display this help message
+  -q (--quiet)           Do not output any message
+  -v (--verbose)         Increase the verbosity of messages: "-v" for normal output, "-vv" for more verbose output and "-vvv" for debug
+  -V (--version)         Display this application version
+  --ansi                 Force ANSI output
+  --no-ansi              Disable ANSI output
+  -n (--no-interaction)  Do not ask any interactive question
+```
+
 ## Fix
 Fix inconsistent EXIF data.
 
