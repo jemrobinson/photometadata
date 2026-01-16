@@ -77,8 +77,8 @@ class ProcessorMixin:
                 verbosity=verbosity.VERY_VERBOSE,
             )
             try:
-                subprocess.call(exiv_cmd, shell=True)
-            except (TypeError, ValueError):
+                subprocess.run(exiv_cmd, shell=True, check=True)
+            except (subprocess.CalledProcessError, TypeError, ValueError):
                 self.line(f"<error>{exiv_cmd} failed!</error>")
                 return (False, "<error>Failed to update</error>")
         return (True, "<info>Updated</info>")

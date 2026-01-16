@@ -10,6 +10,7 @@ import exifread
 import pendulum
 from exifread.classes import IfdTag
 from exifread.tags import FIELD_TYPES
+from struct import error as StructError
 from iptcinfo3 import IPTCInfo
 from pendulum.parsing.exceptions import ParserError
 from pendulum.tz import UTC
@@ -33,22 +34,30 @@ class Metadata:
     def __init__(self, file_path: str | Path) -> None:
         """Constructor"""
         self.path = Path(file_path)
-        with open(self.path, "rb") as photo:
-            self.tags: dict[str, IfdTag] = exifread.process_file(photo)
-            self.keywords = (
-                [kwd.decode() for kwd in iptc["keywords"]]
-                if (iptc := IPTCInfo(photo))
-                else []
-            )
         try:
-            with Image.open(self.path) as im:
-                self.histogram = im.histogram()
-                self.height = im.height
-                self.width = im.width
-            self.fingerprint = sha256(str([self.width, self.height] + self.histogram).encode("utf-8")).hexdigest()
-        # Broken image file
-        except OSError:
-            self.fingerprint = "NotAvailable"
+            with open(self.path, "rb") as photo:
+                try:
+                    self.tags: dict[str, IfdTag] = exifread.process_file(photo)
+                except StructError:
+                    self.tags = {}
+                    self.fingerprint = "NotAvailable"
+                self.keywords = (
+                    [kwd.decode() for kwd in iptc["keywords"]]
+                    if (iptc := IPTCInfo(photo))
+                    else []
+                )
+            try:
+                with Image.open(self.path) as im:
+                    self.histogram = im.histogram()
+                    self.height = im.height
+                    self.width = im.width
+                self.fingerprint = sha256(str([self.width, self.height] + self.histogram).encode("utf-8")).hexdigest()
+            # Broken image file
+            except OSError:
+                self.fingerprint = "NotAvailable"
+        except Exception as exc:
+            print(type(exc), exc)
+            raise
 
     def __repr__(self) -> str:
         """String representation"""

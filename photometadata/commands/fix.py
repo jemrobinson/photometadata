@@ -3,6 +3,7 @@ import re
 
 from cleo import Command
 from clikit.api.io import flags as verbosity
+import pendulum
 
 from photometadata import Metadata
 
@@ -67,7 +68,7 @@ class FixCommand(ProcessorMixin, Command):
             return self.update_metadata(tags2set, metadata.filepath.resolve())
         return (True, "<info>Validated</info>")
 
-    def update_metadata(self, tags: dict[str, str], filename):
+    def update_metadata(self, tags: dict[str, str], filename: str) -> tuple[bool, str]:
         """Update file metadata using exiv2"""
         # Update with exiv2
         exiv_cmds = [
@@ -77,7 +78,7 @@ class FixCommand(ProcessorMixin, Command):
         exiv_cmds += [f'exiv2 -q -d t "{filename}"']
         return self.run_exiv_cmds(exiv_cmds)
 
-    def choose_date(self, metadata: Metadata):
+    def choose_date(self, metadata: Metadata) -> pendulum.DateTime:
         """Choose the most appropriate date using user input"""
         if self.option("filename") and metadata.dates["Filename"]:
             self.line(
@@ -106,7 +107,7 @@ class FixCommand(ProcessorMixin, Command):
                 return date_map[user_input]
         return Metadata.parse_date(user_input)
 
-    def choose_copyright(self, metadata):
+    def choose_copyright(self, metadata: Metadata) -> str:
         """Choose the most appropriate copyright using user input"""
         if "copyright" in self.settings:
             for ruleset in self.settings["copyright"]:
@@ -114,7 +115,7 @@ class FixCommand(ProcessorMixin, Command):
                     tag, value = list(rule.items())[0]
                     if tag == "filename-regex":
                         regex = re.compile(value)
-                        if regex.match(metadata.filepath.name):
+                        if regex.match(metadata.filename):
                             return ruleset["name"]
                     elif metadata.read_tag(tag).upper() == value.upper():
                         return ruleset["name"]
