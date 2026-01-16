@@ -8,8 +8,8 @@ from PIL import Image
 
 import exifread
 import pendulum
-from exifread.classes import IfdTag
-from exifread.tags import FIELD_TYPES
+from exifread.core.exif_header import IfdTag
+from exifread.tags.fields import FieldType
 from struct import error as StructError
 from iptcinfo3 import IPTCInfo
 from pendulum.parsing.exceptions import ParserError
@@ -26,9 +26,8 @@ class Metadata:
     """Class for holding photo metadata"""
 
     IGNORED_FIELD_TYPES = [
-        idx
-        for idx, field in enumerate(FIELD_TYPES)
-        if field[2] in ("Proprietary", "Undefined")
+        FieldType.PROPRIETARY,
+        FieldType.UNDEFINED,
     ]
 
     def __init__(self, file_path: str | Path) -> None:

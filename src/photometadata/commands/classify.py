@@ -3,7 +3,7 @@ import io
 
 from PIL import Image
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from azure.cognitiveservices.vision.computervision.models import ComputerVisionErrorException
+from azure.cognitiveservices.vision.computervision.models import ComputerVisionErrorResponseException
 from cleo import Command
 from clikit.api.io import flags as verbosity
 from msrest.authentication import CognitiveServicesCredentials
@@ -53,7 +53,7 @@ class ClassifyCommand(ProcessorMixin, Command):
             img_bytes = open(metadata.filepath, "rb")
             try:
                 cv_results = self.cv_client.tag_image_in_stream(img_bytes)
-            except ComputerVisionErrorException:
+            except ComputerVisionErrorResponseException:
                 img_bytes = io.BytesIO()
                 Image.open(metadata.filepath).resize(self.resized_image_shape).save(
                     img_bytes, format="JPEG"

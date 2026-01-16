@@ -98,7 +98,7 @@ class FixCommand(ProcessorMixin, Command):
             self.line(f"  <b>{idx})</b> {date}")
         # Automatically take the earliest timestamp if they're all within 5 seconds
         if (available_dates[-1] - available_dates[0]).as_duration().seconds < 5:
-            self.line(f"Automatically selecting <b>{date_map["1"]}</b> among close-together timestamps.")
+            self.line(f"Automatically selecting <b>{date_map['1']}</b> among close-together timestamps.")
             return date_map["1"]
         else:
             user_input = self.ask(

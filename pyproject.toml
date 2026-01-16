@@ -26,3 +26,6 @@ dev = [
     "black>=22.1",
     "pylint>=2.7",
 ]
+
+[project.scripts]
+photometadata = "photometadata.cli:main"
