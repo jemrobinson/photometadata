@@ -1,12 +1,16 @@
 """Command for checking photo metadata"""
-from pathlib import Path
-
 from cleo import Command
 from clikit.api.io import flags as verbosity
 
 from photometadata import Metadata
+from photometadata.library import Library
 from photometadata.mixins import ProcessorMixin
+from photometadata.settings import Settings
 
+
+def check_path(photos_path: str, settings_path: str) -> None:
+    settings = Settings(settings_path)
+    library = Library(photos_path, settings)
 
 class CheckCommand(ProcessorMixin, Command):
     """

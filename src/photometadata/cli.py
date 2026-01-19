@@ -1,7 +1,12 @@
+import logging
 import typer
+
+from rich.logging import RichHandler
+from rich.highlighter import NullHighlighter
 
 from photometadata.commands import (CheckCommand, ClassifyCommand,
                                     DuplicatesCommand, FixCommand)
+from photometadata.commands import check_path
 
 application = typer.Typer(
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -9,11 +14,17 @@ application = typer.Typer(
     no_args_is_help=True,
 )
 
+logging.basicConfig(
+    level=logging.INFO,
+    # format=r"%(asctime) %(name)s %(levelname)s %(message)s",
+    format=r"%(message)s",
+    handlers=[RichHandler(markup=True, highlighter=NullHighlighter())]
+)
+
 @application.command(no_args_is_help=True)
-def check(path: str):
+def check(path: str, settings: str = "settings.yaml"):
     """Check metadata for all photos in a given path."""
-    cmd = CheckCommand()
-    cmd.process_path(path)
+    check_path(path, settings)
 
 @application.command(no_args_is_help=True)
 def classify(path: str, settings: str = "settings.yaml"):

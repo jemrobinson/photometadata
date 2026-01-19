@@ -893,6 +893,7 @@ dependencies = [
     { name = "pillow", version = "11.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
     { name = "pillow", version = "12.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pyyaml" },
+    { name = "rich" },
     { name = "typer", version = "0.20.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "typer", version = "0.21.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
 ]
@@ -916,6 +917,7 @@ requires-dist = [
     { name = "pendulum", specifier = ">2.1" },
     { name = "pillow", specifier = ">8.1" },
     { name = "pyyaml", specifier = ">5.4" },
+    { name = "rich", specifier = ">=14.2.0" },
     { name = "typer", specifier = ">=0.20.1" },
 ]
 

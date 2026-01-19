@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 from pathlib import Path
 from yaml import safe_load
 
@@ -9,10 +10,8 @@ class Settings:
         """Load a YAML settings file into a dict"""
         try:
             with open(path, "r", encoding="utf-8") as f_yaml:
-                self.inner_dict = safe_load(f_yaml)
+                dict_: dict[str, Any] = safe_load(f_yaml)
+                self.extensions = dict_.get("extensions", ["jpg", "JPG", "jpeg", "JPEG"])
         except:
             logger.error(f"Could not load settings from {path}!</error>")
             raise
-
-    def __getitem__(self, key: str) -> str:
-        return self.inner_dict[key]
