@@ -19,6 +19,7 @@ dependencies = [
     "pendulum>2.1",
     "Pillow>8.1",
     "PyYAML>5.4",
+    "typer>=0.20.1",
 ]
 
 [dependency-groups]

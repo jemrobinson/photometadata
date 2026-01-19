@@ -1,4 +1,6 @@
 """Command for checking photo metadata"""
+from pathlib import Path
+
 from cleo import Command
 from clikit.api.io import flags as verbosity
 
