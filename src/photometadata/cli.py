@@ -4,37 +4,28 @@ import typer
 from rich.logging import RichHandler
 from rich.highlighter import NullHighlighter
 
-from photometadata.commands import FixCommand
-from photometadata.commands import check_command, classify_command, duplicates_command
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    handlers=[RichHandler(markup=True, highlighter=NullHighlighter())]
-)
-
-application = typer.Typer(
-    context_settings={"help_option_names": ["-h", "--help"]},
-    help="Entrypoint for photometadata commands",
-    no_args_is_help=True,
-)
-application.add_typer(check_command)
-application.add_typer(classify_command)
-application.add_typer(duplicates_command)
-
-# @application.command(no_args_is_help=True)
-# def duplicates(path: str):
-#     """Check for duplicates among all photos in a given path."""
-#     cmd = DuplicatesCommand()
-#     cmd.process_path(path)
-
-@application.command(no_args_is_help=True)
-def fix(path: str):
-    """Fix metadata issues for all photos in a given path."""
-    cmd = FixCommand()
-    cmd.process_path(path)
+from photometadata.commands import check_command, classify_command, duplicates_command, fix_command
 
 def main():
+    # Set up logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(message)s",
+        handlers=[RichHandler(markup=True, highlighter=NullHighlighter())]
+    )
+
+    # Build the typer application
+    application = typer.Typer(
+        context_settings={"help_option_names": ["-h", "--help"]},
+        help="Entrypoint for photometadata commands",
+        no_args_is_help=True,
+    )
+    application.add_typer(check_command)
+    application.add_typer(classify_command)
+    application.add_typer(duplicates_command)
+    application.add_typer(fix_command)
+
+    # Run the application
     application()
 
 if __name__ == "__main__":

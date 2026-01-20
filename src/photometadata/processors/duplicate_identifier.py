@@ -1,18 +1,9 @@
 import logging
 from .processor import Processor, ProcessingResult
 from photometadata.photo import Photo
-from photometadata.settings import Settings
 import operator
 from functools import reduce
-from typing import cast
 
-from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from msrest.authentication import CognitiveServicesCredentials
-from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from azure.cognitiveservices.vision.computervision.models import ComputerVisionErrorResponseException, ImageTag, TagResult
-import io
-from msrest.pipeline import ClientRawResponse
-from PIL import Image
 
 
 logger = logging.getLogger(__name__)

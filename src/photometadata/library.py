@@ -4,7 +4,7 @@ from collections.abc import Generator, Iterable
 from pathlib import Path
 from photometadata.photo import Photo
 from photometadata.settings import Settings
-from photometadata.processors import Checker, Classifier, DuplicateIdentifier, ProcessingResult
+from photometadata.processors import Checker, Classifier, DuplicateIdentifier, MetadataFixer, ProcessingResult
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,11 @@ class Library:
         classifier = Classifier(self.settings)
         self.summarise(map(lambda photo: classifier(photo), self.walk()))
 
+    def fix_metadata(self) -> None:
+        """Fix inconsistent photo metadata in the library."""
+        fixer = MetadataFixer(self.settings)
+        self.summarise(map(lambda photo: fixer(photo), self.walk()))
+
     def identify_duplicates(self) -> None:
         """Identify duplicates among all photos in the library."""
         duplicate_identifier = DuplicateIdentifier()
@@ -53,7 +58,7 @@ class Library:
             else 0
         )
         logger.info(
-            f"Processed [bold]{n_photos['processed']}[/] photos of which [red]{n_photos['failed']}[/] ([red]{percentage:.2f}%[/]) failed validation"
+            f"Processed [bold]{n_photos['processed']}[/] photos of which [bold]{n_photos['failed']}[/] ({percentage:.2f}%) failed validation"
         )
 
     def walk(self) -> Generator[Photo, None, None]:

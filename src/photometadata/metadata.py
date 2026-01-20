@@ -32,7 +32,7 @@ class Metadata:
 
     def __init__(self, file_path: str | Path) -> None:
         """Constructor"""
-        self.path = Path(file_path)
+        self.path = Path(file_path).resolve()
         try:
             with open(self.path, "rb") as photo:
                 try:
@@ -120,7 +120,8 @@ class Metadata:
                 parsed_date = None
         # Unexpected date type
         if not isinstance(parsed_date, pendulum.DateTime):
-            parsed_date = None
+            msg = f"String '{date}' could not be parsed as a date!"
+            raise ValueError(msg)
         return parsed_date
 
     def all_dates_equal(self) -> bool:
