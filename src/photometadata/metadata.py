@@ -1,19 +1,20 @@
 """Class for holding photo metadata"""
 import logging
 import re
+import logging
 from hashlib import sha256
 from itertools import groupby
+from typing import cast
 from pathlib import Path
 from PIL import Image
 
 import exifread
 import pendulum
-from exifread.core.exif_header import IfdTag
+from exifread.core.ifd_tag import IfdTag
 from exifread.tags.fields import FieldType
 from struct import error as StructError
 from iptcinfo3 import IPTCInfo
 from pendulum.parsing.exceptions import ParserError
-from pendulum.tz import UTC
 
 # Suppress 'Possibly corrupted field' messages from exifread
 logging.getLogger("exifread").setLevel(logging.CRITICAL)
@@ -21,6 +22,7 @@ logging.getLogger("exifread").setLevel(logging.CRITICAL)
 # Suppress 'problems with charset recognition' messages from iptcinfo3
 logging.getLogger("iptcinfo").setLevel(logging.CRITICAL)
 
+logger = logging.getLogger(__name__)
 
 class Metadata:
     """Class for holding photo metadata"""
@@ -34,16 +36,14 @@ class Metadata:
         """Constructor"""
         self.path = Path(file_path).resolve()
         try:
-            with open(self.path, "rb") as photo:
+            with open(self.path, "rb") as binary:
                 try:
-                    self.tags: dict[str, IfdTag] = exifread.process_file(photo)
+                    self.tags: dict[str, IfdTag] = exifread.process_file(binary)
                 except StructError:
                     self.tags = {}
                     self.fingerprint = "NotAvailable"
                 self.keywords = (
-                    [kwd.decode() for kwd in iptc["keywords"]]
-                    if (iptc := IPTCInfo(photo))
-                    else []
+                    [kwd.decode() for kwd in cast(list[bytes], IPTCInfo(binary, force=True)["keywords"])]
                 )
             try:
                 with Image.open(self.path) as im:
@@ -109,8 +109,11 @@ class Metadata:
         return self.read_tag("Image DocumentName")
 
     @staticmethod
-    def parse_date(date: str) -> pendulum.DateTime:
+    def parse_date(date: str | None) -> pendulum.DateTime | None:
         """Attempt to parse a string into a date"""
+        if not date:
+            return None
+
         try:
             parsed_date = pendulum.parse(date)
         except (ParserError, TypeError, ValueError):
@@ -120,8 +123,8 @@ class Metadata:
                 parsed_date = None
         # Unexpected date type
         if not isinstance(parsed_date, pendulum.DateTime):
-            msg = f"String '{date}' could not be parsed as a date!"
-            raise ValueError(msg)
+            logger.warning(f"String '{date}' could not be parsed as a DateTime!")
+            return None
         return parsed_date
 
     def all_dates_equal(self) -> bool:

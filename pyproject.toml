@@ -13,7 +13,6 @@ authors = [
 requires-python = ">=3.8"
 dependencies = [
     "azure-cognitiveservices-vision-computervision>=0.7",
-    "cleo<2.0",
     "ExifRead>2.3",
     "IPTCInfo3>2.1",
     "pendulum>2.1",
