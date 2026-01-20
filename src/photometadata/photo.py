@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 from photometadata.metadata import Metadata
-from photometadata.processors import ProcessingResult
+# from photometadata.processors import ProcessingResult
 
 
 

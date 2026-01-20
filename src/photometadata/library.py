@@ -4,7 +4,7 @@ from collections.abc import Generator, Iterable
 from pathlib import Path
 from photometadata.photo import Photo
 from photometadata.settings import Settings
-from photometadata.processors import Checker, Classifier, ProcessingResult
+from photometadata.processors import Checker, Classifier, DuplicateIdentifier, ProcessingResult
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +27,15 @@ class Library:
 
     def classify_photos(self) -> None:
         """Add tags to all photos in the library using Azure Compute Vision."""
-        classifier = Classifier()
-        self.summarise(map(lambda photo: checker(photo), self.walk()))
+        classifier = Classifier(self.settings)
+        self.summarise(map(lambda photo: classifier(photo), self.walk()))
+
+    def identify_duplicates(self) -> None:
+        """Identify duplicates among all photos in the library."""
+        duplicate_identifier = DuplicateIdentifier()
+        for photo in self.walk():
+            duplicate_identifier(photo)
+        logger.info(f"Found [bold]{duplicate_identifier.n_duplicates}[/] duplicate photo(s) in the library")
 
     def summarise(self, results: Iterable[ProcessingResult]) -> None:
         """Summarise the result of a photo processing operation."""
