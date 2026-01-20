@@ -1,77 +1,17 @@
 """Command for checking photo metadata"""
-from cleo import Command
-from clikit.api.io import flags as verbosity
+import logging
+import typer
 
-from photometadata import Metadata
 from photometadata.library import Library
-from photometadata.mixins import ProcessorMixin
 from photometadata.settings import Settings
 
+logger = logging.getLogger(__name__)
 
-def check_path(photos_path: str, settings_path: str) -> None:
-    settings = Settings(settings_path)
-    library = Library(photos_path, settings)
+check_command = typer.Typer()
 
-class CheckCommand(ProcessorMixin, Command):
-    """
-    Checks a photo's metadata
-
-    check
-        {path : Location to look for photos under}
-    """
-
-    def handle(self) -> None:
-        self.process_path(self.argument("path"))
-
-    def process_metadata(self, metadata: Metadata):
-        output_tuple = (True, "<info>Validated</info>")
-        # Check for broken image
-        if metadata.fingerprint == "NotAvailable":
-            self.line(
-                "  <error>\u2716</error> Image data is broken!",
-                verbosity=verbosity.NORMAL,
-            )
-            output_tuple = (False, "<error>Failed to validate</error>")
-        # Check for equal dates
-        if metadata.all_dates_equal():
-            self.line(
-                f"  <info>\u2714</info> All dates are equal ({metadata.canonical_date})",
-                verbosity=verbosity.VERY_VERBOSE,
-            )
-        else:
-            self.line(
-                "  <error>\u2716</error> Not all dates are equal!",
-                verbosity=verbosity.NORMAL,
-            )
-            output_tuple = (False, "<error>Failed to validate</error>")
-        # Check for copyright
-        if metadata.copyright:
-            self.line(
-                f"  <info>\u2714</info> Found copyright information ({metadata.copyright})",
-                verbosity=verbosity.VERY_VERBOSE,
-            )
-        else:
-            self.line(
-                "  <error>\u2716</error> Copyright is missing!",
-                verbosity=verbosity.NORMAL,
-            )
-            output_tuple = (False, "<error>Failed to validate</error>")
-        # Check for name or comment
-        if (not metadata.name) and (not metadata.comment):
-            self.line(
-                "  <error>\u2716</error> No comment or document name found!",
-                verbosity=verbosity.NORMAL,
-            )
-            output_tuple = (False, "<error>Failed to validate</error>")
-        else:
-            if metadata.name:
-                self.line(
-                    f"  <info>\u2714</info> Found document name ({metadata.name})",
-                    verbosity=verbosity.VERY_VERBOSE,
-                )
-            if metadata.comment:
-                self.line(
-                    f"  <info>\u2714</info> Found comment information ({metadata.comment})",
-                    verbosity=verbosity.VERY_VERBOSE,
-                )
-        return output_tuple
+@check_command.command(no_args_is_help=True)
+def check(path: str, settings: str = "settings.yaml") -> None:
+    """Check metadata for all photos in a given path."""
+    settings_ = Settings(settings)
+    library = Library(path, settings_)
+    library.check_photos()
