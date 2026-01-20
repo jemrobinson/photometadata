@@ -4,8 +4,8 @@ import typer
 from rich.logging import RichHandler
 from rich.highlighter import NullHighlighter
 
-from photometadata.commands import ClassifyCommand, DuplicatesCommand, FixCommand
-from photometadata.commands import check_command
+from photometadata.commands import DuplicatesCommand, FixCommand
+from photometadata.commands import check_command, classify_command
 
 logging.basicConfig(
     level=logging.INFO,
@@ -19,12 +19,7 @@ application = typer.Typer(
     no_args_is_help=True,
 )
 application.add_typer(check_command)
-
-@application.command(no_args_is_help=True)
-def classify(path: str, settings: str = "settings.yaml"):
-    """Add tags to a photo using Azure Compute Vision."""
-    cmd = ClassifyCommand()
-    cmd.process_path(path)
+application.add_typer(classify_command)
 
 @application.command(no_args_is_help=True)
 def duplicates(path: str):

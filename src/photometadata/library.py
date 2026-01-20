@@ -4,6 +4,7 @@ from collections.abc import Generator, Iterable
 from pathlib import Path
 from photometadata.photo import Photo
 from photometadata.settings import Settings
+from photometadata.processors import Checker, Classifier, ProcessingResult
 
 logger = logging.getLogger(__name__)
 
@@ -21,16 +22,22 @@ class Library:
 
     def check_photos(self) -> None:
         """Check metadata for all photos in the library."""
-        self.summarise(map(lambda photo: photo.check(), self.walk()))
+        checker = Checker()
+        self.summarise(map(lambda photo: checker(photo), self.walk()))
 
-    def summarise(self, result: Iterable[tuple[bool, str]]) -> None:
+    def classify_photos(self) -> None:
+        """Add tags to all photos in the library using Azure Compute Vision."""
+        classifier = Classifier()
+        self.summarise(map(lambda photo: checker(photo), self.walk()))
+
+    def summarise(self, results: Iterable[ProcessingResult]) -> None:
         """Summarise the result of a photo processing operation."""
         n_photos = Counter()
-        for success, msg in result:
-            if success:
-                logger.debug(msg)
+        for result in results:
+            if result.success:
+                logger.debug(result.message)
             else:
-                logger.error(msg)
+                logger.error(result.message)
                 n_photos["failed"] += 1
             n_photos["processed"] += 1
         percentage = (

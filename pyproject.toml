@@ -18,6 +18,7 @@ dependencies = [
     "IPTCInfo3>2.1",
     "pendulum>2.1",
     "Pillow>8.1",
+    "pydantic>=2.10.6",
     "PyYAML>5.4",
     "rich>=14.2.0",
     "typer>=0.20.1",

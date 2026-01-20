@@ -1,17 +1,28 @@
 import logging
-from typing import Any
 from pathlib import Path
 from yaml import safe_load
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
-class Settings:
+class _Azure(BaseModel):
+    subscription_key: str
+    endpoint: str
+
+class _Copyright(BaseModel):
+    name: str
+    whenever: list[dict[str, str]]
+
+class Settings(BaseModel):
+    extensions: list[str] = ["jpg", "JPG", "jpeg", "JPEG"]
+    azure: _Azure
+    copyright: list[_Copyright]
+
     def __init__(self, path: str | Path) -> None:
-        """Load a YAML settings file into a dict"""
+        """Load a YAML settings file into a Settings object"""
         try:
             with open(path, "r", encoding="utf-8") as f_yaml:
-                dict_: dict[str, Any] = safe_load(f_yaml)
-                self.extensions = dict_.get("extensions", ["jpg", "JPG", "jpeg", "JPEG"])
-        except:
-            logger.error(f"Could not load settings from {path}!</error>")
+                super().__init__(**safe_load(f_yaml))
+        except Exception:
+            logger.error(f"Could not load settings from {path}!")
             raise
