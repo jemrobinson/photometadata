@@ -4,7 +4,7 @@ import typer
 from rich.logging import RichHandler
 from rich.highlighter import NullHighlighter
 
-from photometadata.commands import check_command, classify_command, duplicates_command, fix_command
+from photometadata.commands import check_command, classify_command, duplicates_command, metadata_command
 
 def main():
     # Set up logging
@@ -23,7 +23,7 @@ def main():
     application.add_typer(check_command)
     application.add_typer(classify_command)
     application.add_typer(duplicates_command)
-    application.add_typer(fix_command)
+    application.add_typer(metadata_command)
 
     # Run the application
     application()

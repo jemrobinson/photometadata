@@ -7,7 +7,7 @@ Check for consistent EXIF data.
 
 ```
 USAGE
-  python application.py check <path>
+  uv run photometadata check <path>
 
 ARGUMENTS
   <path>                 Location to look for photos under
@@ -28,7 +28,7 @@ Note that this requires a **Microsoft Azure** subscription.
 
 ```
 USAGE
-  python application.py classify <path>
+  uv run photometadata classify <path>
 
 ARGUMENTS
   <path>                 Location to look for photos under
@@ -51,7 +51,7 @@ Check for duplicate files
 
 ```
 USAGE
-  python application.py duplicates <target>
+  uv run photometadata duplicates <target>
 
 ARGUMENTS
   <target>               Location that photos are stored under
@@ -66,12 +66,12 @@ GLOBAL OPTIONS
   -n (--no-interaction)  Do not ask any interactive question
 ```
 
-## Fix
-Fix inconsistent EXIF data.
+## Metadata
+Fix inconsistent EXIF metadata.
 
 ```
 USAGE
-  python application.py fix [-f] [-s <...>] <path>
+  uv run photometadata metadata [-f] [-s <...>] <path>
 
 ARGUMENTS
   <path>                 Location to look for photos under
