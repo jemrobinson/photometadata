@@ -13,12 +13,10 @@ class Library:
         self.base_path = Path(path).resolve(strict=True)
         logger.info(f"Looking for files under [cyan]{self.base_path}[/]")
         self.settings = settings
-        self.photos: list[Photo] = sorted((
-           Photo(filepath)
-           for ext in self.settings.extensions
-           for filepath in self.base_path.rglob(f"*.{ext}")
-        ), key=lambda p: p.metadata.filepath)
-        logger.info(f"Found [bold]{len(self.photos)}[/] files under [cyan]{self.base_path}[/]")
+        filepaths = [filepath for ext in self.settings.extensions for filepath in self.base_path.rglob(f"*.{ext}")]
+        logger.info(f"Found [bold]{len(filepaths)}[/] files under [cyan]{self.base_path}[/]")
+        self.photos = [Photo(filepath) for filepath in sorted(filepaths)]
+        logger.info(f"Loaded metadata for [bold]{len(self.photos)}[/] photos under [cyan]{self.base_path}[/]")
 
     def check_photos(self) -> None:
         """Check metadata for all photos in the library."""
