@@ -15,13 +15,12 @@ class DuplicateIdentifier(Processor):
     def __call__(self, photo: Photo) -> ProcessingResult:
         if photo.metadata.fingerprint in self.duplicates:
             self.duplicates[photo.metadata.fingerprint].add(photo)
-            return ProcessingResult(True, "Identified as duplicate.")
+            return ProcessingResult(False, "Identified as duplicate.")
         self.duplicates[photo.metadata.fingerprint] = {photo}
         return ProcessingResult(True, "Not a duplicate.")
 
     @property
     def n_duplicates(self) -> int:
-        print(self.duplicates)
         n_photos = reduce(operator.add, (len(group) for group in self.duplicates.values()))
         n_groups = len(self.duplicates)
         return n_photos - n_groups
