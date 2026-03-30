@@ -1,20 +1,22 @@
 name: check-code-style
 on: [pull_request]
 jobs:
-  check-code-style-python:
+  check-code-style:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
-      - name: Install poetry
-        run: pip install poetry
-      - name: Install dependencies
-        run: poetry install
-      - name: Check style with black
-        run: poetry run black --check photometadata
-      - name: Check style with pylint
-        run: poetry run pylint photometadata --disable=C0301
+          python-version: 3.8
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Check style with ruff
+        run: uv run ruff check --fix
+
+      - name: Format code with ruff
+        run: uv run ruff format

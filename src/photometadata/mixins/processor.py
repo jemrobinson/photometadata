@@ -1,4 +1,5 @@
 """Mixin class for file processing commands"""
+
 import subprocess
 from collections import Counter
 from pathlib import Path
