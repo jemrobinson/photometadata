@@ -14,10 +14,3 @@ class Photo:
     @property
     def directory(self) -> Path:
         return self.metadata.filepath.parent
-
-    # def add_tag(self, tag: str) -> None:
-    #     # if tag not in self.metadata.keywords:
-    #     #     self.metadata.keywords.append(tag)
-
-    #     # f'exiv2 -q -M "add Iptc.Application2.Keywords String {tag_name}" "{photo.metadata.filepath}"'
-    #                     # for tag_name in tags_selected
