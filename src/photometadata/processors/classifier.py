@@ -72,5 +72,5 @@ class Classifier(Processor):
             )
 
         # Return an error if tags could not be retrieved
-        logger.error("  <error>\u2716</error> Failed to get tags from Azure Computer Vision")
-        return ProcessingResult(False, "<error>Failed to classify</error>")
+        logger.error("  [red]\u2716[/] Failed to get tags from Azure Computer Vision")
+        return ProcessingResult(False, "[red]Failed to classify[/]")

@@ -6,32 +6,32 @@ logger = logging.getLogger(__name__)
 
 class Checker(Processor):
     def __call__(self, photo: Photo) -> ProcessingResult:
-        output = ProcessingResult(True, "<info>Validated</info>")
+        output = ProcessingResult(True, f"[blue]Validated {photo.metadata.path}[/]")
         # Check for broken image
         if photo.metadata.fingerprint == "NotAvailable":
-            logger.error("  <error>\u2716</error> Image data is broken!")
-            output = ProcessingResult(False, "<error>Failed to validate</error>")
+            logger.error("  [red]\u2716[/] Image data is broken!")
+            output = ProcessingResult(False, f"[red]Failed to validate {photo.metadata.path}[/]")
         # Check for equal dates
         if photo.metadata.all_dates_equal():
-            logger.debug(f"  <info>\u2714</info> All dates are equal ({photo.metadata.canonical_date})")
+            logger.debug(f"  [blue]\u2714[/] All dates are equal ({photo.metadata.canonical_date})")
         else:
-            logger.error("  <error>\u2716</error> Not all dates are equal!")
-            output = ProcessingResult(False, "<error>Failed to validate</error>")
+            logger.error("  [red]\u2716[/] Not all dates are equal!")
+            output = ProcessingResult(False, f"[red]Failed to validate {photo.metadata.path}[/]")
         # Check for copyright
         if photo.metadata.copyright:
             logger.debug(
-                f"  <info>\u2714</info> Found copyright information ({photo.metadata.copyright})",
+                f"  [blue]\u2714[/] Found copyright information ({photo.metadata.copyright})",
             )
         else:
-            logger.info("  <error>\u2716</error> Copyright is missing!")
-            output = ProcessingResult(False, "<error>Failed to validate</error>")
+            logger.info("  [red]\u2716[/] Copyright is missing!")
+            output = ProcessingResult(False, f"[red]Failed to validate {photo.metadata.path}[/]")
         # Check for name or comment
         if (not photo.metadata.name) and (not photo.metadata.comment):
-            logger.info("  <error>\u2716</error> No comment or document name found!")
-            output = ProcessingResult(False, "<error>Failed to validate</error>")
+            logger.info("  [red]\u2716[/] No comment or document name found!")
+            output = ProcessingResult(False, f"[red]Failed to validate {photo.metadata.path}[/]")
         else:
             if photo.metadata.name:
-                logger.debug(f"  <info>\u2714</info> Found document name ({photo.metadata.name})")
+                logger.debug(f"  [blue]\u2714[/] Found document name ({photo.metadata.name})")
             if photo.metadata.comment:
-                logger.debug(f"  <info>\u2714</info> Found comment information ({photo.metadata.comment})")
+                logger.debug(f"  [blue]\u2714[/] Found comment information ({photo.metadata.comment})")
         return output
