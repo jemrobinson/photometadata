@@ -25,8 +25,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=22.1",
-    "pylint>=2.7",
+    "ruff>=0.15.8",
 ]
 
 [project.scripts]
