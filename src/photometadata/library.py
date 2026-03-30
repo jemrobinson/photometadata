@@ -18,9 +18,9 @@ class Library:
         self.photos = [Photo(filepath) for filepath in sorted(filepaths)]
         logger.info(f"Loaded metadata for [bold]{len(self.photos)}[/] photos under [cyan]{self.base_path}[/]")
 
-    def check_photos(self) -> None:
+    def check_photos(self, broken_only: bool) -> None:
         """Check metadata for all photos in the library."""
-        checker = Checker()
+        checker = Checker(broken_only=broken_only)
         self.summarise(map(lambda photo: checker(photo), self.walk()))
 
     def classify_photos(self) -> None:

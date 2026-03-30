@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 check_command = typer.Typer()
 
 @check_command.command(no_args_is_help=True)
-def check(path: str, settings: str = "settings.yaml") -> None:
+def check(path: str, settings: str = "settings.yaml", *, broken_only: bool = False) -> None:
     """Check metadata for all photos in a given path."""
     settings_ = Settings(settings)
     library = Library(path, settings_)
-    library.check_photos()
+    library.check_photos(broken_only=broken_only)

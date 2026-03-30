@@ -5,12 +5,17 @@ from photometadata.photo import Photo
 logger = logging.getLogger(__name__)
 
 class Checker(Processor):
+    def __init__(self, broken_only: bool) -> None:
+        self.broken_only = broken_only
+
     def __call__(self, photo: Photo) -> ProcessingResult:
         output = ProcessingResult(True, f"[blue]Validated {photo.metadata.path}[/]")
         # Check for broken image
         if photo.metadata.fingerprint == "NotAvailable":
             logger.error("  [red]\u2716[/] Image data is broken!")
             output = ProcessingResult(False, f"[red]Failed to validate {photo.metadata.path}[/]")
+        if self.broken_only:
+            return output
         # Check for equal dates
         if photo.metadata.all_dates_equal():
             logger.debug(f"  [blue]\u2714[/] All dates are equal ({photo.metadata.canonical_date})")
