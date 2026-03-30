@@ -4,19 +4,34 @@ from collections.abc import Generator, Iterable
 from pathlib import Path
 from photometadata.photo import Photo
 from photometadata.settings import Settings
-from photometadata.processors import Checker, Classifier, DuplicateIdentifier, MetadataFixer, ProcessingResult
+from photometadata.processors import (
+    Checker,
+    Classifier,
+    DuplicateIdentifier,
+    MetadataFixer,
+    ProcessingResult,
+)
 
 logger = logging.getLogger(__name__)
+
 
 class Library:
     def __init__(self, path: str | Path, settings: Settings) -> None:
         self.base_path = Path(path).resolve(strict=True)
         logger.info(f"Looking for files under [cyan]{self.base_path}[/]")
         self.settings = settings
-        filepaths = [filepath for ext in self.settings.extensions for filepath in self.base_path.rglob(f"*.{ext}")]
-        logger.info(f"Found [bold]{len(filepaths)}[/] files under [cyan]{self.base_path}[/]")
+        filepaths = [
+            filepath
+            for ext in self.settings.extensions
+            for filepath in self.base_path.rglob(f"*.{ext}")
+        ]
+        logger.info(
+            f"Found [bold]{len(filepaths)}[/] files under [cyan]{self.base_path}[/]"
+        )
         self.photos = [Photo(filepath) for filepath in sorted(filepaths)]
-        logger.info(f"Loaded metadata for [bold]{len(self.photos)}[/] photos under [cyan]{self.base_path}[/]")
+        logger.info(
+            f"Loaded metadata for [bold]{len(self.photos)}[/] photos under [cyan]{self.base_path}[/]"
+        )
 
     def check_photos(self, broken_only: bool) -> None:
         """Check metadata for all photos in the library."""
@@ -38,7 +53,9 @@ class Library:
         duplicate_identifier = DuplicateIdentifier()
         for photo in self.walk():
             duplicate_identifier(photo)
-        logger.info(f"Found [bold]{duplicate_identifier.n_duplicates}[/] duplicate photo(s) in the library")
+        logger.info(
+            f"Found [bold]{duplicate_identifier.n_duplicates}[/] duplicate photo(s) in the library"
+        )
 
     def summarise(self, results: Iterable[ProcessingResult]) -> None:
         """Summarise the result of a photo processing operation."""

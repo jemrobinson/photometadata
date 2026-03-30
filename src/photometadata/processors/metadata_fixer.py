@@ -10,6 +10,7 @@ import re
 
 logger = logging.getLogger(__name__)
 
+
 class MetadataFixer(Processor):
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
@@ -76,7 +77,9 @@ class MetadataFixer(Processor):
             logger.info(f"  [b]{idx})[/b] {date}")
         # Automatically take the earliest timestamp if they're all within 5 seconds
         if (available_dates[-1] - available_dates[0]).as_duration().seconds < 5:
-            logger.info(f"Automatically selecting [b]{date_map['1']}[/b] among close-together timestamps.")
+            logger.info(
+                f"Automatically selecting [b]{date_map['1']}[/b] among close-together timestamps."
+            )
             return date_map["1"]
         else:
             user_input = Prompt.ask(
@@ -95,7 +98,9 @@ class MetadataFixer(Processor):
                     regex = re.compile(value)
                     if regex.match(metadata.filename):
                         return ruleset.name
-                elif (tag_value := metadata.read_tag(tag)) and (tag_value.casefold() == value.casefold()):
+                elif (tag_value := metadata.read_tag(tag)) and (
+                    tag_value.casefold() == value.casefold()
+                ):
                     return ruleset.name
         logger.warning(f"No copyright rule found for {metadata.filepath}")
         return Prompt.ask("Please enter the name of the copyright holder:")
@@ -105,9 +110,7 @@ class MetadataFixer(Processor):
         if (not filename_date) or filename_date == date:
             return
         filename = metadata.filename.replace(
-            filename_date.strftime(r"%Y%m%d_%H%M%S"),
-            date.strftime(r"%Y%m%d_%H%M%S")
+            filename_date.strftime(r"%Y%m%d_%H%M%S"), date.strftime(r"%Y%m%d_%H%M%S")
         )
         filepath = metadata.filepath.parent / filename
         metadata.path = metadata.filepath.rename(filepath)
-

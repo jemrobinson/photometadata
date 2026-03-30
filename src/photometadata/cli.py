@@ -4,14 +4,20 @@ import typer
 from rich.logging import RichHandler
 from rich.highlighter import NullHighlighter
 
-from photometadata.commands import check_command, classify_command, duplicates_command, metadata_command
+from photometadata.commands import (
+    check_command,
+    classify_command,
+    duplicates_command,
+    metadata_command,
+)
+
 
 def main():
     # Set up logging
     logging.basicConfig(
         level=logging.INFO,
         format="%(message)s",
-        handlers=[RichHandler(markup=True, highlighter=NullHighlighter())]
+        handlers=[RichHandler(markup=True, highlighter=NullHighlighter())],
     )
 
     # Build the typer application
@@ -27,6 +33,7 @@ def main():
 
     # Run the application
     application()
+
 
 if __name__ == "__main__":
     main()

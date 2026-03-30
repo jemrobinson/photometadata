@@ -6,10 +6,12 @@ import subprocess
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class ProcessingResult:
     success: bool
     message: str
+
 
 class Processor(ABC):
     @abstractmethod

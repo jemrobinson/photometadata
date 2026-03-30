@@ -5,13 +5,16 @@ from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
+
 class _Azure(BaseModel):
     subscription_key: str
     endpoint: str
 
+
 class _Copyright(BaseModel):
     name: str
     whenever: list[dict[str, str]]
+
 
 class Settings(BaseModel):
     extensions: list[str] = ["jpg", "JPG", "jpeg", "JPEG"]

@@ -6,14 +6,17 @@ from typing import cast
 
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from msrest.authentication import CognitiveServicesCredentials
-from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from azure.cognitiveservices.vision.computervision.models import ComputerVisionErrorResponseException, ImageTag, TagResult
+from azure.cognitiveservices.vision.computervision.models import (
+    ComputerVisionErrorResponseException,
+    ImageTag,
+    TagResult,
+)
 import io
-from msrest.pipeline import ClientRawResponse
 from PIL import Image
 
 
 logger = logging.getLogger(__name__)
+
 
 class Classifier(Processor):
     def __init__(self, settings: Settings) -> None:
@@ -30,7 +33,6 @@ class Classifier(Processor):
                 CognitiveServicesCredentials(self.settings.azure.subscription_key),
             )
         return self.cv_client_
-
 
     def __call__(self, photo: Photo) -> ProcessingResult:
         if photo.metadata.keywords:
@@ -52,7 +54,9 @@ class Classifier(Processor):
         # Add all tags with a high enough confidence score
         if isinstance(cv_results, TagResult):
             tags_all = sorted(
-                cast(list[ImageTag], cv_results.tags), key=lambda tag: tag.confidence, reverse=True
+                cast(list[ImageTag], cv_results.tags),
+                key=lambda tag: tag.confidence,
+                reverse=True,
             )
             tags_selected = [tags_all[0].name] + [
                 tag.name
@@ -61,9 +65,7 @@ class Classifier(Processor):
             ]
 
             # Update the metadata
-            logger.debug(
-                f"Found <b>{len(tags_selected)}</b> classes: {tags_selected}"
-            )
+            logger.debug(f"Found <b>{len(tags_selected)}</b> classes: {tags_selected}")
             return self.run_exiv_cmds(
                 [
                     f'exiv2 -q -M "add Iptc.Application2.Keywords String {tag_name}" "{photo.metadata.filepath}"'

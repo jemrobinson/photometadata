@@ -4,9 +4,9 @@ from photometadata.metadata import Metadata
 # from photometadata.processors import ProcessingResult
 
 
-
-
 logger = logging.getLogger(__name__)
+
+
 class Photo:
     def __init__(self, path: Path) -> None:
         self.metadata = Metadata(path)

@@ -1,4 +1,5 @@
 """Command for checking photo metadata for duplicates."""
+
 import logging
 import typer
 
@@ -8,6 +9,7 @@ from photometadata.settings import Settings
 logger = logging.getLogger(__name__)
 
 duplicates_command = typer.Typer()
+
 
 @duplicates_command.command(no_args_is_help=True)
 def duplicates(path: str, settings: str = "settings.yaml") -> None:

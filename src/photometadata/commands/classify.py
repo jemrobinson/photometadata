@@ -1,4 +1,5 @@
 """Command for adding tags to a photo"""
+
 import logging
 import typer
 
@@ -8,6 +9,7 @@ from photometadata.settings import Settings
 logger = logging.getLogger(__name__)
 
 classify_command = typer.Typer()
+
 
 @classify_command.command(no_args_is_help=True)
 def classify(path: str, settings: str = "settings.yaml") -> None:

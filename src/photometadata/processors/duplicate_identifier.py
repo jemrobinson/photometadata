@@ -5,8 +5,8 @@ import operator
 from functools import reduce
 
 
-
 logger = logging.getLogger(__name__)
+
 
 class DuplicateIdentifier(Processor):
     def __init__(self) -> None:
@@ -21,6 +21,8 @@ class DuplicateIdentifier(Processor):
 
     @property
     def n_duplicates(self) -> int:
-        n_photos = reduce(operator.add, (len(group) for group in self.duplicates.values()))
+        n_photos = reduce(
+            operator.add, (len(group) for group in self.duplicates.values())
+        )
         n_groups = len(self.duplicates)
         return n_photos - n_groups

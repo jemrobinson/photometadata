@@ -1,7 +1,7 @@
 """Class for holding photo metadata"""
+
 import logging
 import re
-import logging
 from hashlib import sha256
 from itertools import groupby
 from typing import cast
@@ -24,6 +24,7 @@ logging.getLogger("iptcinfo").setLevel(logging.CRITICAL)
 
 logger = logging.getLogger(__name__)
 
+
 class Metadata:
     """Class for holding photo metadata"""
 
@@ -42,15 +43,20 @@ class Metadata:
                 except StructError:
                     self.tags = {}
                     self.fingerprint = "NotAvailable"
-                self.keywords = (
-                    [kwd.decode() for kwd in cast(list[bytes], IPTCInfo(binary, force=True)["keywords"])]
-                )
+                self.keywords = [
+                    kwd.decode()
+                    for kwd in cast(
+                        list[bytes], IPTCInfo(binary, force=True)["keywords"]
+                    )
+                ]
             try:
                 with Image.open(self.path) as im:
                     self.histogram = im.histogram()
                     self.height = im.height
                     self.width = im.width
-                self.fingerprint = sha256(str([self.width, self.height] + self.histogram).encode("utf-8")).hexdigest()
+                self.fingerprint = sha256(
+                    str([self.width, self.height] + self.histogram).encode("utf-8")
+                ).hexdigest()
             # Broken image file
             except OSError:
                 self.fingerprint = "NotAvailable"
